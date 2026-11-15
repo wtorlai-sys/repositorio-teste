@@ -9,9 +9,16 @@ narração gerada no ElevenLabs (`public/narracao.mp3`).
 ```bash
 npm install
 python3 scripts/gerar_moldura.py   # gera a moldura de cinema (vinheta + grão)
+python3 scripts/gerar_trilha.py    # sintetiza efeitos, ambiente e música (requer scipy)
 npm run studio            # abre o Remotion Studio para ver/editar
 npx remotion render OCustoDeCadaClique out/O_Custo_de_Cada_Clique.mp4
 ```
+
+## Som
+
+`scripts/gerar_trilha.py` sintetiza todos os efeitos (celular vibrando, chaves na mesa,
+notificações, passos, ondas, festa, coração…), os ambientes e a música, lendo os tempos de
+`src/v2/time.ts`. Se mudar a sincronia, rode o script de novo.
 
 ## Estrutura
 

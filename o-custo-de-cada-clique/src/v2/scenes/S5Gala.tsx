@@ -9,7 +9,7 @@ import {Caption} from '../overlays';
 const START = T.cena5;
 const END = T.cena6;
 const NIGHT: [string, string] = ['#120f30', '#2e2057'];
-const AGED = {hair: '#cfcad8', eye: 'sad' as const, head: '#1b1d30', shirt: '#2b2d44', shirtDark: '#202236', hood: false, headphones: false};
+const AGED = {hair: '#cfcad8', eye: 'tired' as const, head: '#141522', shirt: '#2b2d44', shirtDark: '#202236', hood: false, headphones: false};
 
 const TV: React.FC<{t: number}> = ({t}) => {
 	const g = rng(Math.floor(t * 12));
@@ -103,7 +103,7 @@ export const S5Gala: React.FC = () => {
 					/>
 				)}
 				{(index === 0 || index === 6) && (
-					<PenthouseSide t={t} sky={NIGHT} lit={0.5} room="#2a2246" postit max={{...AGED, eye: index === 6 && t > 263.4 ? 'closed' : 'sad', mouth: index === 6 ? 'sad' : 'none', armF: [52, 42], blink: t % 3.4 < 0.15 ? 1 : 0}} />
+					<PenthouseSide t={t} sky={NIGHT} lit={0.5} room="#2a2246" postit max={{...AGED, eye: index === 6 && t > 263.4 ? 'closed' : index === 6 ? 'sad' : 'tired', mouth: index === 6 && t > 263.4 ? 'flat' : 'sad', tears: index === 6 && t > 264 ? t : undefined, armF: [52, 42], blink: t % 3.4 < 0.15 ? 1 : 0}} />
 				)}
 				{index === 3 && <TV t={t} />}
 				{index === 4 && (

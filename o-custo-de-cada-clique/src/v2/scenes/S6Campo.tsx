@@ -9,7 +9,7 @@ const START = T.cena6;
 const END = T.end;
 const GROUND = 820;
 
-const MAXOLD = {shirt: '#d9d3c5', shirtDark: '#bdb6a6', pants: '#4a4f6a', hair: '#cfcad8', head: '#1b1d30'};
+const MAXOLD = {shirt: '#d9d3c5', shirtDark: '#bdb6a6', pants: '#3e5f94', cuff: '#5677ad', shoe: '#101119', sole: '#eceef5', hair: '#cfcad8', head: '#141522'};
 const RIMW = {c: '#ffd59a', dx: -6, dy: -5};
 
 const House: React.FC<{x: number; w: number; c: string; roof: string}> = ({x, w, c, roof}) => (
@@ -195,8 +195,11 @@ export const S6Campo: React.FC = () => {
 					walkAmp={walking ? 22 : 0}
 					armF={sitting ? [70, 60] : [walking ? Math.sin(t * 7) * 18 : 6, 10]}
 					armB={sitting ? [60, 70] : [walking ? -Math.sin(t * 7) * 18 : 4, 10]}
-					eye={sitting ? 'closed' : t > T.jogoPara ? 'sad' : 'open'}
-					mouth={sitting ? 'sad' : 'none'}
+					eye={sitting ? 'closed' : t > T.lugar ? 'sad' : t > T.jogoPara ? 'wide' : 'tired'}
+					mouth={sitting ? (t > T.ceu ? 'smile' : 'sad') : t > T.lugar ? 'sad' : t > T.jogoPara ? 'o' : 'flat'}
+					tears={t > T.lugar + 0.6 ? t : undefined}
+					brows
+					shine
 					headTilt={sitting ? 18 : 4}
 					rim={RIMW}
 				/>

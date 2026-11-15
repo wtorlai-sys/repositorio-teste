@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Shot2, T, cam2, lerp, sr, useTime} from '../time';
-import {Char} from '../Char';
+import {Char, MAX_LOOK} from '../Char';
 import {Glow, INK, Plant, Stage} from '../parts';
 
 const START = T.casa;
@@ -96,17 +96,13 @@ export const S2Casa: React.FC = () => {
 					x={mx}
 					y={724}
 					flip
-					shirt="#f08a3c"
-					shirtDark="#c96a26"
-					pants="#3b4a6b"
-					hood
-					headphones
+					{...MAX_LOOK}
 					walk={walking ? t * 9 : 0}
 					walkAmp={walking ? 26 : 0}
 					armF={cheer > 0 ? [lerp(20, 165, cheer), 0] : throwArm > 0 ? [lerp(20, 95, throwArm), 0] : [walking ? Math.sin(t * 9) * 22 : 10, 12]}
 					armB={cheer > 0 ? [lerp(10, 160, cheer), 0] : [walking ? -Math.sin(t * 9) * 22 : 6, 12]}
-					eye={t > 74.8 ? 'happy' : 'open'}
-					mouth="smile"
+					eye={t > 74.8 ? (Math.sin(t * 3) > 0.6 ? 'happy' : 'wide') : 'happy'}
+					mouth={t > 74.8 && t < 81 ? (Math.sin(t * 13) > 0 ? 'grin' : 'open') : 'grin'}
 					headTilt={-6}
 					rim={{c: '#fff6d6', dx: 6, dy: -4, o: 0.9}}
 				/>

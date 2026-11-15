@@ -55,8 +55,8 @@ export const S3Noite: React.FC = () => {
 						sky={NIGHT}
 						max={{
 							blink,
-							eye: yawn > 0.3 ? 'closed' : index === 5 ? 'sad' : 'focus',
-							mouth: yawn > 0.3 ? 'open' : 'none',
+							eye: yawn > 0.3 ? 'closed' : index === 5 ? 'tired' : t > 124 ? 'angry' : 'focus',
+							mouth: yawn > 0.3 ? 'yawn' : index === 5 ? 'sad' : 'flat',
 							headTilt: -yawn * 14 + (index === 5 ? 6 : 0),
 							armF: drink > 0 ? [lerp(52, 150, drink), lerp(42, 30, drink)] : [52 + Math.sin(t * 13) * 2, 42],
 							hold: drink > 0.3 ? 'can' : 'pad',

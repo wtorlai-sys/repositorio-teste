@@ -1,11 +1,11 @@
 import React from 'react';
-import {Char, CharProps} from './Char';
+import {Char, CharProps, MAX_LOOK} from './Char';
 import {Cone, Desk, GameScreen, GameOpts, GamerChair, Glow, INK, Monitor, MonitorSide, Skyline} from './parts';
 import {rng} from './time';
 
 type MaxMode = 'chair' | 'window' | 'sofa' | 'none';
 
-const MAXC = {shirt: '#f08a3c', shirtDark: '#c96a26', pants: '#3b4a6b', hood: true};
+const MAXC = MAX_LOOK;
 
 /** Partículas das estações (neve, pétalas, folhas) do lado de fora. */
 export const Particles: React.FC<{t: number; color: string; r: number; on?: number; area?: [number, number, number, number]}> = ({
@@ -226,6 +226,11 @@ export const PenthouseSide: React.FC<{
 			<Glow x={1640} y={660} r={320} o={0.4 * flick} />
 			<GamerChair x={1110} y={780} />
 			<Cone from={[1638, 566, 1638, 754]} to={[1190, 620]} spread={120} o={0.8 * flick} />
+			{monOn > 0.2 &&
+				Array.from({length: 22}, (_, i) => {
+					const k = (t * (0.03 + (i % 5) * 0.01) + i * 0.137) % 1;
+					return <circle key={i} cx={1630 - k * 430} cy={600 + Math.sin(t * 0.6 + i * 2.1) * (40 + k * 70) + ((i * 37) % 60) - 30} r={1.6 + (i % 3) * 0.7} fill="#dff1ff" opacity={0.5 * (1 - Math.abs(k - 0.5) * 1.6)} />;
+				})}
 			<Char x={1150} y={770} pose="sit" {...MAXC} headphones armF={[52, 42]} armB={[46, 46]} hold="pad" eye="focus" rim={{c: '#a9dcff', dx: 6, dy: -2, o: Math.max(0.15, monOn)}} {...max} />
 		</g>
 	);

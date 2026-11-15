@@ -77,8 +77,9 @@ export const S4Anos: React.FC = () => {
 						phoneColor="#5dff9b"
 						room={index === 1 ? '#3d4280' : '#3a3d78'}
 						max={{
-							eye: frozen ? 'wide' : 'focus',
-							mouth: index === 1 && t > 171.2 && t < 175 ? (Math.sin(t * 14) > 0 ? 'open' : 'flat') : 'none',
+							eye: frozen ? (t > 197.5 ? 'sad' : 'shock') : index === 1 ? 'angry' : 'focus',
+							mouth: index === 1 && t > 171.2 && t < 175 ? (Math.sin(t * 14) > 0 ? 'open' : 'flat') : frozen ? (t > 197.5 ? 'sad' : 'o') : 'flat',
+							tears: frozen && t > 197.6 ? t : undefined,
 							hair: '#20170f',
 							longHair: true,
 							armF: frozen ? [40, 30] : [52 + Math.sin(t * 13) * 2, 42],
@@ -155,7 +156,7 @@ export const S4Tentativas: React.FC = () => {
 						maxProps={{longHair: true, hair: '#20170f'}}
 					/>
 				) : (
-					<PenthouseSide t={t} sky={sky(0.05)} lit={0.4} max={{eye: 'sad', longHair: true, hair: '#20170f', armF: [52, 42], blink: t % 3 < 0.15 ? 1 : 0}} />
+					<PenthouseSide t={t} sky={sky(0.05)} lit={0.4} max={{eye: 'tired', mouth: 'sad', longHair: true, hair: '#20170f', armF: [52, 42], blink: t % 3 < 0.15 ? 1 : 0}} />
 				)}
 			</Stage>
 			<Caption t={t} a={203.6} b={T.voltou1 - 0.2} text={`DIA ${dayN}`} />

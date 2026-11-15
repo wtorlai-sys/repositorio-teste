@@ -18,6 +18,7 @@ const seq = (a: number, b: number) => ({
 export const Video: React.FC = () => (
 	<AbsoluteFill style={{background: 'black'}}>
 		<Audio src={staticFile('narracao.mp3')} />
+		<Audio src={staticFile('trilha.wav')} volume={0.8} />
 		<Sequence {...seq(0, T.casa)} name="1 · Quarto">
 			<S1Quarto />
 		</Sequence>

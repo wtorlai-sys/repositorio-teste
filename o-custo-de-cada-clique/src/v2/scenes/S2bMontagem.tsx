@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Shot2, T, cam2, lerp, sr, useTime} from '../time';
-import {Char} from '../Char';
+import {Char, MAX_LOOK} from '../Char';
 import {Glow, INK, Plant, Skyline, Stage} from '../parts';
 import {Notification} from '../overlays';
 
@@ -102,7 +102,7 @@ const Sunset: React.FC<{t: number; closeWatch: boolean}> = ({t, closeWatch}) => 
 			))}
 			<rect x={-300} y={800} width={2520} height={400} fill="#211d40" />
 			<rect x={40} y={810} width={1840} height={90} fill="url(#sSky)" opacity={0.15} />
-			<Char x={lerp(1650, 700, w)} y={650} flip shirt="#f2efe8" pants="#2a2a3a" walk={w < 1 ? t * 8 : 0} walkAmp={w < 1 ? 24 : 0} armF={[w < 1 ? Math.sin(t * 8) * 18 : 30, w < 1 ? 10 : 60]} armB={[w < 1 ? -Math.sin(t * 8) * 18 : 0, 10]} eye="happy" mouth="smile" rim={{c: '#ffc07a', dx: -6, dy: -4}} />
+			<Char x={lerp(1650, 700, w)} y={650} flip {...MAX_LOOK} shirt="#f2efe8" shirtDark="#d9d5cc" pants="#2a2a3a" hood={false} headphones={false} walk={w < 1 ? t * 8 : 0} walkAmp={w < 1 ? 24 : 0} armF={[w < 1 ? Math.sin(t * 8) * 18 : 30, w < 1 ? 10 : 60]} armB={[w < 1 ? -Math.sin(t * 8) * 18 : 0, 10]} eye="happy" mouth="smile" rim={{c: '#ffc07a', dx: -6, dy: -4}} />
 		</g>
 	);
 };

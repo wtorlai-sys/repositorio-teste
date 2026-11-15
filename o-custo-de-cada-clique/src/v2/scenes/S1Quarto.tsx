@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Shot2, T, cam2, sr, useTime, win} from '../time';
-import {Char} from '../Char';
+import {Char, MAX_LOOK} from '../Char';
 import {CityWindow, Cone, Desk, GameScreen, GameOpts, GamerChair, Glow, INK, Monitor, MonitorSide, PhoneBig, Plant, Stage} from '../parts';
 import {Title} from '../overlays';
 
@@ -93,7 +93,13 @@ export const RoomNight: React.FC<{t: number; max: Partial<React.ComponentProps<t
 			<Glow x={1470} y={680} r={260} o={0.35 * flick} />
 			<GamerChair x={1000} y={770} />
 			<Cone from={[1470, 606, 1470, 744]} to={[1060, 610]} spread={110} o={0.75 * flick} />
-			<Char x={1040} y={760} pose="sit" shirt="#f08a3c" shirtDark="#c96a26" pants="#3b4a6b" hood headphones armF={[52, 42]} armB={[46, 46]} hold="pad" eye="focus" rim={RIM} {...max} />
+			{Array.from({length: 26}, (_, i) => {
+				const k = ((t * (0.03 + (i % 5) * 0.01) + i * 0.137) % 1);
+				const x = 1460 - k * 380;
+				const y = 600 + Math.sin(t * 0.6 + i * 2.1) * (40 + k * 70) + ((i * 37) % 60) - 30;
+				return <circle key={i} cx={x} cy={y} r={1.6 + (i % 3) * 0.7} fill="#dff1ff" opacity={0.55 * (1 - Math.abs(k - 0.5) * 1.6)} />;
+			})}
+			<Char x={1040} y={760} pose="sit" {...MAX_LOOK} armF={[52, 42]} armB={[46, 46]} hold="pad" eye="focus" rim={RIM} {...max} />
 			{/* primeiro plano desfocado */}
 			<path d="M-80 140 h210 q40 300 -10 600 q-30 160 30 300 h-230 z" fill="#0d0e1e" opacity={0.55} />
 			<path d="M-60 140 h170 q40 300 -10 600 q-30 160 30 300 h-190 z" fill="#0d0e1e" opacity={0.85} />
@@ -127,7 +133,7 @@ export const OverShoulder: React.FC<{t: number; game: GameOpts; hairGrey?: boole
 		<path d="M1500 860 h90 M1545 860 l-30 -190 l-90 -60" stroke={INK} strokeWidth={10} fill="none" strokeLinecap="round" />
 		<path d="M1400 590 l60 -40 l20 80 z" fill={INK} />
 		<rect x={1350} y={790} width={70} height={70} rx={10} fill={INK} />
-		<Char x={250} y={1220} scale={2.5} view="back" pose="stand" shirt="#f08a3c" shirtDark="#c96a26" pants="#3b4a6b" hood headphones hair={hairGrey ? '#c9c4d6' : undefined} armF={[25, -20]} armB={[25, -20]} rim={{c: '#a9dcff', dx: 8, dy: 0}} />
+		<Char x={250} y={1220} scale={2.5} view="back" pose="stand" {...MAX_LOOK} headphones hair={hairGrey ? '#c9c4d6' : undefined} armF={[25, -20]} armB={[25, -20]} rim={{c: '#a9dcff', dx: 8, dy: 0}} />
 		<rect x={380} y={820} width={170} height={64} rx={30} fill="#262a3d" transform={`rotate(-6 465 850) translate(0 ${Math.sin(t * 9) * 2})`} />
 	</g>
 );
@@ -206,8 +212,8 @@ export const S1Quarto: React.FC = () => {
 						phone={t > T.vibra - 0.5 && t < T.vibra ? 1 : 0}
 						max={{
 							blink,
-							eye: index === 7 ? (t > T.bug ? 'wide' : 'wide') : laugh ? 'happy' : 'focus',
-							mouth: laugh ? 'open' : index === 7 && t > T.bug ? 'flat' : 'none',
+							eye: index === 7 ? (t > T.bug ? 'shock' : 'wide') : laugh ? 'happy' : index === 1 && t > 16 ? 'angry' : 'focus',
+							mouth: laugh ? 'grin' : index === 7 ? (t > T.bug && t < 53 ? (Math.sin(t * 16) > 0 ? 'o' : 'flat') : 'flat') : 'flat',
 							headTilt: laugh ? Math.sin(t * 20) * 3 : glance ? 12 : 0,
 							armF: [52 + Math.sin(t * 13) * 2, 42],
 						}}
