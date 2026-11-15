@@ -1,7 +1,7 @@
 import React from 'react';
 import {Composition} from 'remotion';
-import {Video} from './Video';
-import {AUDIO_SECONDS, FPS} from './lib';
+import {Video} from './v2/Video';
+import {AUDIO_SECONDS, FPS} from './v2/time';
 
 export const RemotionRoot: React.FC = () => (
 	<Composition

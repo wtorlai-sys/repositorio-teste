@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, staticFile} from 'remotion';
-import {FPS, T} from './lib';
-import {CinemaFrame} from './components/Overlays';
+import {FPS, T} from './time';
+import {CinemaFrame} from './overlays';
 import {S1Quarto} from './scenes/S1Quarto';
 import {S2Casa} from './scenes/S2Casa';
 import {S2bMontagem} from './scenes/S2bMontagem';

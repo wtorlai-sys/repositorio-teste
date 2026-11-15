@@ -1,7 +1,4 @@
-import {useLayoutEffect, useMemo} from 'react';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
-import {useThree} from '@react-three/fiber';
-import * as THREE from 'three';
 
 export const FPS = 30;
 export const AUDIO_SECONDS = 316.68;
@@ -94,81 +91,35 @@ export const useTime = (start: number) => {
 	return start + frame / fps;
 };
 
-type V3 = [number, number, number];
-
-export const CameraRig: React.FC<{pos: V3; look: V3; fov?: number; roll?: number}> = ({
-	pos,
-	look,
-	fov = 40,
-	roll = 0,
-}) => {
-	const {camera, invalidate} = useThree();
-	useLayoutEffect(() => {
-		const cam = camera as THREE.PerspectiveCamera;
-		cam.position.set(...pos);
-		cam.fov = fov;
-		cam.near = 0.05;
-		cam.far = 400;
-		cam.updateProjectionMatrix();
-		cam.up.set(Math.sin(roll), Math.cos(roll), 0);
-		cam.lookAt(...look);
-		invalidate();
-	});
-	return null;
-};
-
-/** Textura desenhada num canvas 2D, redesenhada quando `key` muda. */
-export const useCanvasTexture = (
-	w: number,
-	h: number,
-	draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void,
-	key: unknown,
-) => {
-	const [canvas, tex] = useMemo(() => {
-		const c = document.createElement('canvas');
-		c.width = w;
-		c.height = h;
-		const t = new THREE.CanvasTexture(c);
-		t.colorSpace = THREE.SRGBColorSpace;
-		t.anisotropy = 4;
-		return [c, t] as const;
-	}, [w, h]);
-	useLayoutEffect(() => {
-		const ctx = canvas.getContext('2d')!;
-		ctx.clearRect(0, 0, w, h);
-		draw(ctx, w, h);
-		tex.needsUpdate = true;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [key]);
-	return tex;
-};
-
 export const money = (v: number, prefix = 'US$ ') =>
 	prefix + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-export type Shot = {at: number; p: [V3, V3]; l: [V3, V3]; fov?: number; shake?: number};
-
-/** Escolhe o plano ativo (corte seco) e move a câmera suavemente dentro dele. */
-export const shotCam = (t: number, shots: Shot[], end: number) => {
-	let i = 0;
-	for (let k = 0; k < shots.length; k++) if (t >= shots[k].at) i = k;
-	const s = shots[i];
-	const e = i + 1 < shots.length ? shots[i + 1].at : end;
-	const x = clamp((t - s.at) / Math.max(0.001, e - s.at));
-	const k = x * 0.6 + smooth(x) * 0.4;
-	const pos = lerp3(s.p[0], s.p[1], k);
-	const look = lerp3(s.l[0], s.l[1], k);
-	const sh = s.shake ?? 0;
-	if (sh > 0) {
-		pos[0] += noise(t * 2.1, 1) * sh;
-		pos[1] += noise(t * 2.4, 5) * sh;
-		look[0] += noise(t * 1.7, 9) * sh * 1.5;
-		look[1] += noise(t * 1.9, 3) * sh * 1.5;
-	}
-	return {pos, look, fov: s.fov ?? 40};
+const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+export const mixColor = (a: string, b: string, x: number) => {
+	const A = hex(a);
+	const B = hex(b);
+	const k = clamp(x);
+	return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * k).toString(16).padStart(2, '0')).join('');
 };
 
-const _ca = new THREE.Color();
-const _cb = new THREE.Color();
-export const mixColor = (a: string, b: string, x: number) =>
-	'#' + _ca.set(a).lerp(_cb.set(b), clamp(x)).getHexString();
+/** Plano de câmera 2D: centro (x,y) e zoom s, interpolados de `a` até `b`. */
+export type View = {x: number; y: number; s: number};
+export type Shot2 = {at: number; a: View; b?: View; shake?: number; ease?: 'lin' | 'smooth'};
+
+export const cam2 = (t: number, shots: Shot2[], end: number) => {
+	let i = 0;
+	for (let k = 0; k < shots.length; k++) if (t >= shots[k].at) i = k;
+	const sh = shots[i];
+	const e = i + 1 < shots.length ? shots[i + 1].at : end;
+	const x = clamp((t - sh.at) / Math.max(0.001, e - sh.at));
+	const k = sh.ease === 'smooth' ? smooth(x) : x * 0.5 + smooth(x) * 0.5;
+	const b = sh.b ?? sh.a;
+	let cx = lerp(sh.a.x, b.x, k);
+	let cy = lerp(sh.a.y, b.y, k);
+	const s = lerp(sh.a.s, b.s, k);
+	if (sh.shake) {
+		cx += noise(t * 2.3, 1) * sh.shake;
+		cy += noise(t * 2.9, 4) * sh.shake;
+	}
+	return {index: i, transform: `translate(960 540) scale(${s}) translate(${-cx} ${-cy})`};
+};

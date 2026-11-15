@@ -1,6 +1,6 @@
 import React from 'react';
-import {AbsoluteFill, random, staticFile, useCurrentFrame} from 'remotion';
-import {sr, win} from '../lib';
+import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
+import {sr, win} from './time';
 
 const mono = '"JetBrains Mono", monospace';
 const sans = 'Inter, sans-serif';
@@ -143,29 +143,8 @@ export const Counter: React.FC<{t: number; a: number; b: number; value: string; 
 	);
 };
 
-/** Moldura cinematográfica: letterbox 2.39:1, vinheta, grão e correção de cor. */
-export const CinemaFrame: React.FC<{grade?: string; gradeOpacity?: number; fade?: number}> = ({
-	grade = 'transparent',
-	gradeOpacity = 0,
-	fade = 0,
-}) => {
+/** Moldura cinematográfica: letterbox 2.39:1, vinheta e grão já embutidos em PNG (rápido de compor). */
+export const CinemaFrame: React.FC = () => {
 	const frame = useCurrentFrame();
-	const seed = Math.floor(random(frame) * 1000);
-	return (
-		<AbsoluteFill style={{pointerEvents: 'none'}}>
-			<AbsoluteFill style={{background: grade, opacity: gradeOpacity, mixBlendMode: 'soft-light'}} />
-			<AbsoluteFill style={{background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%)'}} />
-			<AbsoluteFill
-				style={{
-					backgroundImage: `url(${staticFile('grain.png')})`,
-					backgroundPosition: `${(seed * 37) % 256}px ${(seed * 91) % 256}px`,
-					opacity: 0.07,
-					mixBlendMode: 'overlay',
-				}}
-			/>
-			<AbsoluteFill style={{background: 'black', opacity: fade}} />
-			<div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 138, background: 'black'}} />
-			<div style={{position: 'absolute', bottom: 0, left: 0, right: 0, height: 138, background: 'black'}} />
-		</AbsoluteFill>
-	);
+	return <Img src={staticFile(`frame_${frame % 4}.png`)} style={{position: 'absolute', inset: 0, width: 1920, height: 1080}} />;
 };
