@@ -10,26 +10,47 @@ const MOODS: Record<Mood, {bg: string; fog: [string, number, number]; hemi: [str
 	day: {bg: '#8fd0f7', fog: ['#cfe8f5', 40, 260], hemi: ['#eaf6ff', '#5c8a3a', 1.1], sun: ['#fff1d6', 2.6, [30, 40, 20]], amb: 0.25},
 	cloudy: {bg: '#9aa6ae', fog: ['#a9b2b8', 12, 120], hemi: ['#c9d3da', '#4f5c48', 1.0], sun: ['#dfe6ea', 1.0, [-20, 40, 10]], amb: 0.35},
 	dusk: {bg: '#3a3f66', fog: ['#4a4a6a', 20, 160], hemi: ['#7a7fb0', '#2b2a35', 0.7], sun: ['#ff9a5a', 0.8, [-40, 10, 10]], amb: 0.2},
-	fire: {bg: '#141a33', fog: ['#1a1d33', 18, 120], hemi: ['#3a4570', '#1a1410', 0.55], sun: ['#7d8cc4', 0.35, [20, 40, -10]], amb: 0.12},
-	cold: {bg: '#060a14', fog: ['#0a1020', 10, 90], hemi: ['#2c3f66', '#05070a', 0.45], sun: ['#7fa0d8', 0.45, [-20, 40, 20]], amb: 0.08},
-	roomNight: {bg: '#0d1424', fog: ['#0d1424', 30, 80], hemi: ['#4a5a86', '#1c1410', 0.35], sun: ['#7fa0d8', 0.25, [-5, 8, 10]], amb: 0.1},
+	fire: {bg: '#141a33', fog: ['#1a1d33', 18, 120], hemi: ['#4a5890', '#2a2018', 1.0], sun: ['#8d9cd4', 0.7, [20, 40, -10]], amb: 0.12},
+	cold: {bg: '#060a14', fog: ['#0a1020', 10, 90], hemi: ['#3a5280', '#10141c', 0.85], sun: ['#8fb0e8', 0.8, [-20, 40, 20]], amb: 0.08},
+	roomNight: {bg: '#0d1424', fog: ['#0d1424', 30, 80], hemi: ['#5a6a96', '#2c2018', 0.7], sun: ['#7fa0d8', 0.25, [-5, 8, 10]], amb: 0.1},
 	roomDay: {bg: '#cfe6f2', fog: ['#cfe6f2', 40, 120], hemi: ['#fff6e8', '#8a6a48', 1.0], sun: ['#fff0d8', 1.3, [5, 8, 8]], amb: 0.3},
-	cave: {bg: '#080605', fog: ['#0b0806', 6, 30], hemi: ['#3a2c22', '#050403', 0.3], sun: ['#ffb070', 0.2, [0, 5, 5]], amb: 0.08},
+	cave: {bg: '#080605', fog: ['#0b0806', 6, 30], hemi: ['#5a4434', '#100c08', 0.6], sun: ['#ffb070', 0.2, [0, 5, 5]], amb: 0.08},
 	void: {bg: '#020306', fog: ['#020306', 10, 60], hemi: ['#1a2440', '#000000', 0.25], sun: ['#4060a0', 0.2, [0, 10, 10]], amb: 0.05},
 };
 
-export const Env: React.FC<{mood: Mood}> = ({mood}) => {
+const RIM: Record<Mood, string> = {day: '#ffffff', cloudy: '#dfe8f0', dusk: '#ffb07a', fire: '#7fa0ff', cold: '#7fb0ff', roomNight: '#8fb0ff', roomDay: '#fff4e0', cave: '#ff9a50', void: '#4060a0'};
+const RIM_I: Record<Mood, number> = {day: 1.2, cloudy: 0.9, dusk: 1.2, fire: 1.4, cold: 1.3, roomNight: 1.1, roomDay: 0.8, cave: 0.8, void: 0.6};
+
+export const Env: React.FC<{mood: Mood; focus?: [number, number, number]}> = ({mood, focus = [0, 0, 0]}) => {
 	const m = MOODS[mood];
 	const {scene, gl} = useThree();
 	scene.background = new THREE.Color(m.bg);
 	scene.fog = new THREE.Fog(m.fog[0], m.fog[1], m.fog[2]);
 	gl.toneMapping = THREE.ACESFilmicToneMapping;
 	gl.toneMappingExposure = 1.05;
+	gl.shadowMap.enabled = true;
+	gl.shadowMap.type = THREE.PCFSoftShadowMap;
+	// sombras de verdade: tudo projeta e recebe (exceto sprites/brilhos)
+	scene.traverse((o) => {
+		const mesh = o as THREE.Mesh;
+		if (mesh.isMesh) {
+			const mat = mesh.material as THREE.Material & {transparent?: boolean};
+			const glowy = mat && (mat as THREE.MeshBasicMaterial).isMeshBasicMaterial;
+			mesh.castShadow = !glowy && !mat.transparent;
+			mesh.receiveShadow = !glowy;
+		}
+	});
+	const sunDir = new THREE.Vector3(...m.sun[2]).normalize();
+	const sunPos: [number, number, number] = [focus[0] + sunDir.x * 30, focus[1] + sunDir.y * 30, focus[2] + sunDir.z * 30];
 	return (
 		<>
 			<hemisphereLight args={[m.hemi[0], m.hemi[1], m.hemi[2]]} />
 			<ambientLight intensity={m.amb} />
-			<directionalLight color={m.sun[0]} intensity={m.sun[1]} position={m.sun[2]} />
+			<directionalLight color={m.sun[0]} intensity={m.sun[1]} position={sunPos} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} shadow-camera-left={-14} shadow-camera-right={14} shadow-camera-top={14} shadow-camera-bottom={-14} shadow-camera-near={1} shadow-camera-far={90} shadow-bias={-0.0004} shadow-normalBias={0.02}>
+				<object3D attach="target" position={focus} />
+			</directionalLight>
+			{/* luz de recorte (contorno) vinda de trás, fria — separa o personagem do fundo */}
+			<directionalLight color={RIM[mood]} intensity={RIM_I[mood]} position={[focus[0] - 8, focus[1] + 6, focus[2] - 14]} />
 		</>
 	);
 };

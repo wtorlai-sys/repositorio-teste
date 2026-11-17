@@ -11,15 +11,18 @@ export type Look = {
 	shoes: string;
 	hat?: 'capBack' | 'flatCap' | 'none';
 	hatCol?: string;
-	hair?: {col: string; style: 'short' | 'pigtails' | 'bun' | 'bald' | 'long'};
+	hair?: {col: string; style: 'short' | 'pigtails' | 'bun' | 'bald' | 'long' | 'messy'};
 	beard?: boolean;
 	glasses?: boolean;
+	hoodie?: boolean;
+	iris?: boolean;
+	cargo?: boolean;
 	scale: number;
 };
 
 export const CAST: Record<string, Look> = {
-	// Narrador (mascote original): boné laranja de aba virada para trás + suéter tricotado azul-petróleo.
-	teco: {skin: '#f1c79c', shirt: () => T.knit('#1f8a8a', '#f2e3c2', 2), shirtCol: '#1f8a8a', pants: '#2c3346', shoes: '#efefef', hat: 'capBack', hatCol: '#ff7a1a', hair: {col: '#5a3720', style: 'short'}, scale: 1},
+	// Narrador: MAX (14 anos) — moletom vermelho tricotado, camiseta branca, calça cargo grafite, tênis vermelho/branco, cabelo castanho volumoso.
+	max: {skin: '#f1c79c', shirt: () => T.knit('#c8282e', '#b21f25', 1), shirtCol: '#c8282e', pants: '#3a3d42', shoes: '#d8262c', hair: {col: '#3b2414', style: 'messy'}, hoodie: true, iris: true, cargo: true, scale: 1.08},
 	lia: {skin: '#f4cfa8', shirt: () => T.plaid('#e8566b', '#ffd166'), shirtCol: '#e8566b', pants: '#e8566b', shoes: '#ffd166', hair: {col: '#7a4423', style: 'pigtails'}, scale: 0.78},
 	velho: {skin: '#d9ab84', shirt: () => T.fabric('#3b3a36'), shirtCol: '#3b3a36', pants: '#2a2925', shoes: '#4a3524', hat: 'flatCap', hatCol: '#5b4a3a', hair: {col: '#c9c4bc', style: 'short'}, beard: true, scale: 1.38},
 	mae: {skin: '#efc39a', shirt: () => T.knit('#4f7a52', '#5c8a5f', 1), shirtCol: '#4f7a52', pants: '#3b3f4f', shoes: '#5a3b2a', hair: {col: '#6b3b1f', style: 'bun'}, scale: 1.34},
@@ -28,6 +31,8 @@ export const CAST: Record<string, Look> = {
 	// a coisa: silhueta preta de bloco (só aparece em parte)
 	sombra: {skin: '#050507', shirt: () => T.fabric('#050507'), shirtCol: '#050507', pants: '#050507', shoes: '#050507', hair: {col: '#050507', style: 'short'}, scale: 1.34},
 };
+
+CAST.teco = CAST.max;
 
 const townCols = ['#d9534f', '#f0ad4e', '#5bc0de', '#5cb85c', '#9b59b6', '#34495e', '#e67e22', '#16a085', '#c0392b', '#2980b9', '#8e6e53', '#d35400'];
 const skins = ['#f1c79c', '#e0ac7e', '#c68a5c', '#8d5a3b', '#f4d5b5', '#a8704a'];
@@ -184,7 +189,7 @@ export const Blocky: React.FC<{
 			hair: mat(look.hair?.col ?? '#333'),
 		};
 	}, [look]);
-	const face = useMemo(() => faceTex(expr, !!look.beard), [expr, look.beard]);
+	const face = useMemo(() => faceTex(expr, !!look.beard, !!look.iris), [expr, look.beard, look.iris]);
 	const p = P(t, pose);
 	const u = 0.25 * look.scale;
 	const lying = pose === 'sleep';
@@ -202,16 +207,46 @@ export const Blocky: React.FC<{
 					<mesh position={[0, -0.85, 0]} material={m.pants}>
 						<boxGeometry args={[0.96, 1.7, 0.96]} />
 					</mesh>
+					{look.cargo && (
+						<mesh position={[0, -0.9, 0]} material={m.pants}>
+							<boxGeometry args={[1.06, 0.5, 0.7]} />
+						</mesh>
+					)}
+					{look.cargo && (
+						<mesh position={[0, -1.75, 0.62]}>
+							<boxGeometry args={[0.6, 0.06, 0.02]} />
+							<meshStandardMaterial color="#f4f2ee" />
+						</mesh>
+					)}
 					<mesh position={[0, -1.85, 0.06]} material={m.shoes}>
 						<boxGeometry args={[0.98, 0.3, 1.1]} />
+					</mesh>
+					<mesh position={[0, -1.96, 0.07]}>
+						<boxGeometry args={[1.0, 0.09, 1.12]} />
+						<meshStandardMaterial color="#f4f2ee" />
 					</mesh>
 				</group>
 				<group position={[0.5, 2, 0]} rotation={p.rl}>
 					<mesh position={[0, -0.85, 0]} material={m.pants}>
 						<boxGeometry args={[0.96, 1.7, 0.96]} />
 					</mesh>
+					{look.cargo && (
+						<mesh position={[0, -0.9, 0]} material={m.pants}>
+							<boxGeometry args={[1.06, 0.5, 0.7]} />
+						</mesh>
+					)}
+					{look.cargo && (
+						<mesh position={[0, -1.75, 0.62]}>
+							<boxGeometry args={[0.6, 0.06, 0.02]} />
+							<meshStandardMaterial color="#f4f2ee" />
+						</mesh>
+					)}
 					<mesh position={[0, -1.85, 0.06]} material={m.shoes}>
 						<boxGeometry args={[0.98, 0.3, 1.1]} />
+					</mesh>
+					<mesh position={[0, -1.96, 0.07]}>
+						<boxGeometry args={[1.0, 0.09, 1.12]} />
+						<meshStandardMaterial color="#f4f2ee" />
 					</mesh>
 				</group>
 				<group position={[0, 2, 0]} rotation={p.torso}>
@@ -219,6 +254,32 @@ export const Blocky: React.FC<{
 					<mesh position={[0, 1, 0]} material={m.shirt}>
 						<boxGeometry args={[2, 2, 1]} />
 					</mesh>
+					{look.hoodie && (
+						<>
+							<mesh position={[0, 1.95, -0.55]} material={m.shirt}>
+								<boxGeometry args={[1.5, 0.5, 0.35]} />
+							</mesh>
+							<mesh position={[0, 1.82, 0.505]}>
+								<boxGeometry args={[0.6, 0.3, 0.02]} />
+								<meshStandardMaterial color="#f4f2ee" roughness={0.9} />
+							</mesh>
+							<mesh position={[0, 0.55, 0.52]}>
+								<boxGeometry args={[1.15, 0.6, 0.06]} />
+								<meshStandardMaterial color="#a91d23" roughness={0.9} />
+							</mesh>
+							<mesh position={[-0.2, 1.2, 0.52]}>
+								<boxGeometry args={[0.06, 0.55, 0.03]} />
+								<meshStandardMaterial color="#a91d23" />
+							</mesh>
+							<mesh position={[0.2, 1.2, 0.52]}>
+								<boxGeometry args={[0.06, 0.55, 0.03]} />
+								<meshStandardMaterial color="#a91d23" />
+							</mesh>
+							<mesh position={[0, 2.02, 0.05]} material={m.shirt}>
+								<boxGeometry args={[1.5, 0.14, 1.1]} />
+							</mesh>
+						</>
+					)}
 					{/* braços */}
 					<group position={[-1.5, 1.8, 0]} rotation={p.la}>
 						<mesh position={[0, -0.75, 0]} material={m.shirt}>
@@ -357,6 +418,18 @@ const Hair: React.FC<{look: Look; hairMat: THREE.Material}> = ({look, hairMat}) 
 					<mesh position={[0.66, 0.3, -0.1]}>
 						<boxGeometry args={[0.15, 0.2, 0.3]} />
 						<meshStandardMaterial color="#ffd166" />
+					</mesh>
+				</>
+			)}
+			{h.style === 'messy' && (
+				<>
+					{[[-0.45, 0.66, 0.3, 0.3], [0, 0.72, 0.38, -0.2], [0.42, 0.64, 0.25, 0.25], [-0.25, 0.7, -0.25, 0.1], [0.3, 0.7, -0.3, -0.3], [0, 0.6, 0.56, 0.0]].map(([x, y, z, r], i) => (
+						<mesh key={i} material={hairMat} position={[x, y, z]} rotation={[0.3, r, r * 0.6]}>
+							<boxGeometry args={[0.55, 0.32, 0.5]} />
+						</mesh>
+					))}
+					<mesh material={hairMat} position={[-0.45, 0.42, 0.56]} rotation={[0, 0, 0.35]}>
+						<boxGeometry args={[0.45, 0.2, 0.1]} />
 					</mesh>
 				</>
 			)}

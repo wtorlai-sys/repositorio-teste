@@ -75,8 +75,8 @@ const ShotView: React.FC<{shot: Shot; dur: number}> = ({shot, dur}) => {
 	const t0 = wordTime(shot.w);
 	const ctx = {t, k, dur, wt: (i: number) => wordTime(i) - t0};
 	return (
-		<ThreeCanvas width={width} height={height} gl={{antialias: true, powerPreference: 'high-performance'}} dpr={1}>
-			<Env mood={shot.mood} />
+		<ThreeCanvas width={width} height={height} gl={{antialias: true, powerPreference: 'high-performance'}} dpr={1} shadows>
+			<Env mood={shot.mood} focus={lerp3(shot.cam.t, shot.cam.t2, 0).map((v, i) => (i === 1 ? 0 : v * 0.5 + lerp3(shot.cam.p, undefined, 0)[i] * 0.5)) as [number, number, number]} />
 			<CameraRig cam={shot.cam} t={t} k={k} />
 			{shot.set(ctx)}
 			{(shot.actors ?? []).map((a, i) => {

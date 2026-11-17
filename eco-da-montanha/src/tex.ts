@@ -430,14 +430,42 @@ export const signTex = (lines: string[], o: SignOpts = {}) => {
 
 // Rostos (estilo bloco): olhos ovais pretos + boca, sobrancelhas por expressão.
 export type Expr = 'neutral' | 'happy' | 'shock' | 'scared' | 'sad' | 'whisper' | 'blank' | 'determined' | 'sleep' | 'shout' | 'smirk' | 'angry' | 'grin';
-export const faceTex = (expr: Expr, beard = false) =>
-	make('face' + expr + beard, 256, 256, (c) => {
+export const faceTex = (expr: Expr, beard = false, iris = false) =>
+	make('face' + expr + beard + iris, 256, 256, (c) => {
 		c.clearRect(0, 0, 256, 256);
 		const ink = '#1a1414';
 		c.fillStyle = ink;
 		c.strokeStyle = ink;
 		c.lineCap = 'round';
 		const eye = (x: number, sy = 1, sx = 1) => {
+			if (iris) {
+				// olho moderno: branco amendoado, íris castanha, pupila, brilho
+				c.fillStyle = '#ffffff';
+				c.beginPath();
+				c.ellipse(x, 114, 19 * sx, 14 * sy, 0, 0, Math.PI * 2);
+				c.fill();
+				c.lineWidth = 3;
+				c.strokeStyle = ink;
+				c.stroke();
+				c.fillStyle = '#6b3a1c';
+				c.beginPath();
+				c.arc(x + 1, 115, 11 * Math.min(sy, 1.1), 0, Math.PI * 2);
+				c.fill();
+				c.fillStyle = ink;
+				c.beginPath();
+				c.arc(x + 1, 115, 5, 0, Math.PI * 2);
+				c.fill();
+				c.fillStyle = '#ffffff';
+				c.beginPath();
+				c.arc(x + 5, 110, 3.5, 0, Math.PI * 2);
+				c.fill();
+				c.lineWidth = 5;
+				c.beginPath();
+				c.moveTo(x - 20 * sx, 104 - 4 * sy);
+				c.quadraticCurveTo(x, 96 - 8 * sy, x + 20 * sx, 104 - 4 * sy);
+				c.stroke();
+				return;
+			}
 			c.fillStyle = ink;
 			c.beginPath();
 			c.ellipse(x, 112, 13 * sx, 22 * sy, 0, 0, Math.PI * 2);
@@ -448,7 +476,7 @@ export const faceTex = (expr: Expr, beard = false) =>
 			c.fill();
 		};
 		const brow = (x: number, ang: number, y = 74) => {
-			c.lineWidth = 9;
+			c.lineWidth = iris ? 12 : 9;
 			c.strokeStyle = ink;
 			c.beginPath();
 			c.moveTo(x - 20, y + ang * 10 * (x < 128 ? 1 : -1));
@@ -492,6 +520,10 @@ export const faceTex = (expr: Expr, beard = false) =>
 					brow(164, 0, 58);
 				} else if (expr === 'smirk') {
 					brow(164, 0.6, 72);
+					if (iris) brow(92, 0, 76);
+				} else if (iris) {
+					brow(92, 0.15, 76);
+					brow(164, 0.15, 76);
 				}
 				c.lineWidth = 8;
 				c.beginPath();
