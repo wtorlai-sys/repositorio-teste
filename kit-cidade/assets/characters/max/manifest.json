@@ -1,0 +1,30 @@
+{
+  "personagem": "Max",
+  "nome_falado_no_canal": "Teco (a narração do 1º vídeo chama de Teco; o visual é o do Max)",
+  "papel": "narrador fixo, 1ª pessoa, ~14 anos",
+  "identidade_fixa": {
+    "corpo": "avatar de blocos estilo Roblox, quinas levemente arredondadas, cabeça quadrada, pernas longas (quadril em 2,4 unidades)",
+    "cabelo": "castanho-escuro volumoso e bagunçado, mechas de bloco em 2 tons (#5a3520 / #6e4428), franja caindo na testa",
+    "olhos": "castanhos amendoados com brilho, sobrancelhas grossas castanho-escuras, sorriso de canto",
+    "roupa": "moletom vermelho #c8302f liso (sem listras) com capuz em V, cordões, bolso canguru, punhos e barra mais escuros #a92527; camiseta branca na gola",
+    "calca": "cargo grafite #4a4f57 com bolsos laterais",
+    "tenis": "vermelho #d6302e com sola e listras brancas",
+    "mochila": "só quando a história pedir"
+  },
+  "codigo": {
+    "modelo": "src/Max.tsx (MaxBody) — ligado via CAST.max (custom: 'max') em src/Blocky.tsx; CAST.teco = CAST.max",
+    "rosto": "src/tex.ts faceMaxTex(expr)",
+    "escala": 0.92,
+    "expressoes": ["neutral", "happy", "grin", "sad", "scared", "shock", "smirk", "determined", "angry", "whisper", "blank", "shout", "sleep"],
+    "poses": ["idle", "walk", "run", "wave", "point", "cup", "knock", "lean", "cheer", "arms", "hug", "hold", "reach", "five", "shrug", "torch", "sit", "sitcover", "cover", "lifted", "sleep", "apose"]
+  },
+  "customuse": {
+    "workflow": "Max — base",
+    "workflow_url": "https://customuse.com/workflow/c86eb4a2-a24d-4472-a9d3-a8732010c442",
+    "conceito": {"node": "8364ef11-f325-487b-8f00-05d38c6087b1", "tipo": "nanoBanana2Image 1K 3:4", "custo": 11, "arquivo": "max_conceito_frente.png"},
+    "multiview": {"node": "3191b91d-942c-4977-9093-2e57ef932005", "tipo": "imageToMultiview aPose", "custo": 27, "arquivos": ["mv_1.png", "mv_2.png", "mv_3.png", "mv_4.png", "max_multiview.jpg"]},
+    "modelo_3d": "não gerado (decisão: modelo em código basta para os vídeos; gerar Roblox 3D só para levar ao Roblox, com aprovação)",
+    "saldo_apos": 472
+  },
+  "qc": ["ficha_comparacao.jpg (vistas Customuse x motor)", "rostos_max.jpg (6 expressões)"]
+}
