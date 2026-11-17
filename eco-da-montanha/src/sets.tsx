@@ -289,7 +289,7 @@ export const EchoStone: React.FC<{p?: [number, number, number]; glow?: number}> 
 	return (
 		<group position={p}>
 			<mesh geometry={geo} position={[0, 1.6, 0]}>
-				<meshStandardMaterial map={T.rock([2, 2], '#8b857a')} flatShading roughness={1} emissive="#ffc46a" emissiveIntensity={glow * 0.35} />
+				<meshStandardMaterial map={T.rock([2, 2], '#8b857a')} flatShading roughness={1} emissive="#ffc46a" emissiveIntensity={glow * 0.12} />
 			</mesh>
 			{/* espiral entalhada (a "orelha" da pedra) */}
 			<mesh position={[0, 2.0, 1.42]} rotation={[-0.1, 0, 0]}>
@@ -306,8 +306,8 @@ export const EchoStone: React.FC<{p?: [number, number, number]; glow?: number}> 
 				<Plane p={[0, 1.35, 0.07]} s={[1.5, 0.75]} map={signTex(['PEDRA', 'DO ECO'], {bg: '#3b2a1c', fg: '#f4ecd6', w: 512, h: 256})} />
 			</group>
 			{glow > 0 && (
-				<sprite position={[0, 2, 1.6]} scale={[3 + glow * 4, 3 + glow * 4, 1]}>
-					<spriteMaterial map={T.glow('rgba(255,200,110,0.5)')} transparent opacity={Math.min(1, glow)} depthWrite={false} blending={THREE.AdditiveBlending} />
+				<sprite position={[0, 2, 1.6]} scale={[2.2 + glow * 1.4, 2.2 + glow * 1.4, 1]}>
+					<spriteMaterial map={T.glow('rgba(255,200,110,0.5)')} transparent opacity={Math.min(0.55, glow * 0.5)} depthWrite={false} blending={THREE.AdditiveBlending} />
 				</sprite>
 			)}
 		</group>
@@ -457,8 +457,8 @@ export const Trail: React.FC<{mood: Mood; steps?: number}> = ({mood, steps = 14}
 			<meshStandardMaterial map={T.dirt([1, 14])} roughness={1} />
 		</mesh>
 		{Array.from({length: steps}).map((_, i) => (
-			<mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[(i % 2 ? 0.18 : -0.18) + Math.sin(i * 0.7) * 0.15, 0.03, 4 - i * 0.55]}>
-				<planeGeometry args={[0.12, 0.24]} />
+			<mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[(i % 2 ? 0.22 : -0.22) + Math.sin(i * 0.7) * 0.15, 0.03, 4 - i * 0.75]}>
+				<planeGeometry args={[0.24, 0.46]} />
 				<meshBasicMaterial map={T.footprint()} transparent depthWrite={false} />
 			</mesh>
 		))}

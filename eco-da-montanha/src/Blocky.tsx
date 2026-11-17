@@ -55,7 +55,7 @@ export const townie = (i: number, kid = false): Look => {
 	};
 };
 
-export type Pose = 'idle' | 'wave' | 'cup' | 'knock' | 'run' | 'walk' | 'sit' | 'sleep' | 'lean' | 'cheer' | 'point' | 'hug' | 'lifted' | 'arms' | 'hold' | 'cover' | 'reach' | 'five' | 'shrug' | 'torch' | 'apose';
+export type Pose = 'idle' | 'wave' | 'cup' | 'knock' | 'run' | 'walk' | 'sit' | 'sleep' | 'lean' | 'cheer' | 'point' | 'hug' | 'lifted' | 'arms' | 'hold' | 'cover' | 'reach' | 'five' | 'shrug' | 'torch' | 'apose' | 'sitcover';
 
 type Rot = [number, number, number];
 const P = (t: number, pose: Pose) => {
@@ -157,6 +157,14 @@ const P = (t: number, pose: Pose) => {
 			o.ra = [-0.4, 0, -0.9];
 			o.head = [0, 0, 0.12];
 			break;
+		case 'sitcover':
+			o.ll = [-1.57, 0, 0];
+			o.rl = [-1.57, 0, 0];
+			o.la = [-2.3, 0, -0.45];
+			o.ra = [-2.3, 0, 0.45];
+			o.head = [0.15, 0, 0];
+			o.y = -0.5 + Math.sin(t * 30) * 0.004;
+			break;
 		case 'apose':
 			o.la = [0, 0, -0.45];
 			o.ra = [0, 0, 0.45];
@@ -199,7 +207,7 @@ export const Blocky: React.FC<{
 	}, [look]);
 	const face = useMemo(() => faceTex(expr, !!look.beard, !!look.iris), [expr, look.beard, look.iris]);
 	const p = P(t, pose);
-	if (look.custom === 'max' && pose === 'sit') p.y = -0.6; // perna do Max é mais longa (quadril em 2,4)
+	if (look.custom === 'max' && (pose === 'sit' || pose === 'sitcover')) p.y = -0.6 + (pose === 'sitcover' ? Math.sin(t * 30) * 0.004 : 0); // perna do Max é mais longa (quadril em 2,4)
 	const u = 0.25 * look.scale;
 	const lying = pose === 'sleep';
 	const handProp = (
