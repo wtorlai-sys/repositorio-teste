@@ -596,3 +596,193 @@ export const faceTex = (expr: Expr, beard = false, iris = false) =>
 			}
 		}
 	});
+
+// Rosto do MAX (fiel ao conceito do Customuse): olhos amendoados com íris castanha, sobrancelhas grossas
+// castanho-escuras, sorriso de canto. Uma textura por expressão.
+export const faceMaxTex = (expr: Expr) =>
+	make('faceMax' + expr, 512, 512, (c) => {
+		c.clearRect(0, 0, 512, 512);
+		const ink = '#2a1810', brow = '#2e1a0e';
+		const E: Record<string, {open: number; browA: number; browY: number; look?: number}> = {
+			neutral: {open: 1, browA: 0.05, browY: 0},
+			happy: {open: 0.85, browA: 0.1, browY: -4},
+			grin: {open: 0.75, browA: 0.1, browY: -6},
+			shock: {open: 1.35, browA: 0, browY: -26},
+			scared: {open: 1.25, browA: -0.35, browY: -14},
+			sad: {open: 0.85, browA: -0.35, browY: -6},
+			whisper: {open: 0.8, browA: 0.05, browY: 2},
+			blank: {open: 0.55, browA: 0, browY: 6},
+			determined: {open: 0.85, browA: 0.4, browY: 10},
+			angry: {open: 0.8, browA: 0.5, browY: 12},
+			shout: {open: 1.15, browA: 0.3, browY: -4},
+			smirk: {open: 0.95, browA: 0.15, browY: -2},
+			sleep: {open: 0, browA: 0, browY: 6},
+		};
+		const e = E[expr] ?? E.neutral;
+		c.translate(256, 250);
+		c.scale(1.42, 1.42);
+		c.translate(-256, -262);
+		const ey = 262;
+		const eye = (x: number, side: number) => {
+			const w = 44, h = 30 * e.open;
+			if (e.open < 0.05) {
+				c.strokeStyle = ink;
+				c.lineWidth = 9;
+				c.lineCap = 'round';
+				c.beginPath();
+				c.arc(x, ey - 4, 34, 0.15 * Math.PI, 0.85 * Math.PI);
+				c.stroke();
+				return;
+			}
+			c.save();
+			c.beginPath();
+			c.moveTo(x - w, ey + 4);
+			c.bezierCurveTo(x - w * 0.6, ey - h * 1.25, x + w * 0.6, ey - h * 1.25, x + w, ey - 2);
+			c.bezierCurveTo(x + w * 0.6, ey + h * 0.95, x - w * 0.6, ey + h * 0.95, x - w, ey + 4);
+			c.closePath();
+			c.fillStyle = '#fbf8f2';
+			c.fill();
+			c.clip();
+			const g = c.createRadialGradient(x + 2, ey + 2, 4, x + 2, ey + 2, 30);
+			g.addColorStop(0, '#9a5a2a');
+			g.addColorStop(0.7, '#6e3a18');
+			g.addColorStop(1, '#3e200c');
+			c.fillStyle = g;
+			c.beginPath();
+			c.arc(x + 2, ey + 3, 29, 0, Math.PI * 2);
+			c.fill();
+			c.fillStyle = '#1a0e08';
+			c.beginPath();
+			c.arc(x + 2, ey + 3, 12, 0, Math.PI * 2);
+			c.fill();
+			c.fillStyle = '#ffffff';
+			c.beginPath();
+			c.arc(x + 12, ey - 8, 8, 0, Math.PI * 2);
+			c.fill();
+			c.beginPath();
+			c.arc(x - 8, ey + 14, 3.5, 0, Math.PI * 2);
+			c.fill();
+			c.restore();
+			// pálpebra superior grossa
+			c.strokeStyle = ink;
+			c.lineWidth = 9;
+			c.lineCap = 'round';
+			c.beginPath();
+			c.moveTo(x - w - 4, ey + 6);
+			c.bezierCurveTo(x - w * 0.6, ey - h * 1.3, x + w * 0.6, ey - h * 1.3, x + w + 4, ey - 4);
+			c.stroke();
+			c.lineWidth = 3;
+			c.beginPath();
+			c.moveTo(x - w * 0.7, ey + h * 0.75);
+			c.quadraticCurveTo(x, ey + h * 1.0, x + w * 0.7, ey + h * 0.7);
+			c.stroke();
+			void side;
+		};
+		eye(172, -1);
+		eye(340, 1);
+		// sobrancelhas
+		const browAt = (x: number, side: number) => {
+			c.save();
+			c.translate(x, 196 + e.browY);
+			c.rotate(e.browA * side);
+			c.scale(1.08, 1.7);
+			c.fillStyle = brow;
+			c.beginPath();
+			c.moveTo(-48, 6);
+			c.quadraticCurveTo(-10, -18, 50, -6);
+			c.lineTo(52, 8);
+			c.quadraticCurveTo(-8, -2, -46, 18);
+			c.closePath();
+			c.fill();
+			c.restore();
+		};
+		browAt(172, 1);
+		browAt(340, -1);
+		// boca
+		c.strokeStyle = ink;
+		c.fillStyle = ink;
+		c.lineCap = 'round';
+		c.lineWidth = 7;
+		const my = 372;
+		c.beginPath();
+		switch (expr) {
+			case 'happy':
+			case 'grin':
+				c.moveTo(212, my - 6);
+				c.quadraticCurveTo(256, my + (expr === 'grin' ? 48 : 30), 304, my - 10);
+				if (expr === 'grin') {
+					c.closePath();
+					c.fill();
+					c.fillStyle = '#ffffff';
+					c.fillRect(226, my - 4, 62, 12);
+				} else c.stroke();
+				break;
+			case 'shock':
+			case 'shout':
+				c.ellipse(256, my + 8, expr === 'shout' ? 34 : 20, expr === 'shout' ? 36 : 26, 0, 0, Math.PI * 2);
+				c.fill();
+				c.fillStyle = '#c0504a';
+				c.beginPath();
+				c.ellipse(256, my + 24, 14, 8, 0, 0, Math.PI * 2);
+				c.fill();
+				break;
+			case 'scared':
+			case 'sad':
+				c.moveTo(220, my + 14);
+				c.quadraticCurveTo(256, my - 14, 292, my + 14);
+				c.stroke();
+				if (expr === 'scared') {
+					c.fillStyle = '#8fd0ff';
+					c.beginPath();
+					c.ellipse(420, 200, 10, 16, 0, 0, Math.PI * 2);
+					c.fill();
+				}
+				break;
+			case 'whisper':
+				c.ellipse(256, my + 4, 12, 9, 0, 0, Math.PI * 2);
+				c.fill();
+				break;
+			case 'blank':
+			case 'determined':
+			case 'angry':
+				c.moveTo(228, my + 4);
+				c.lineTo(286, my);
+				c.stroke();
+				break;
+			case 'sleep':
+				c.moveTo(236, my);
+				c.quadraticCurveTo(256, my + 12, 276, my);
+				c.stroke();
+				break;
+			default:
+				// sorriso de canto (como no conceito)
+				c.moveTo(220, my);
+				c.quadraticCurveTo(262, my + 22, 298, my - 8);
+				c.stroke();
+				c.lineWidth = 3;
+				c.beginPath();
+				c.moveTo(232, my + 30);
+				c.quadraticCurveTo(256, my + 36, 278, my + 28);
+				c.stroke();
+		}
+		// nariz sutil
+		c.strokeStyle = 'rgba(150,90,60,0.45)';
+		c.lineWidth = 4;
+		c.beginPath();
+		c.moveTo(252, 322);
+		c.quadraticCurveTo(262, 330, 254, 336);
+		c.stroke();
+	});
+
+// tecido liso do moletom: cor chapada com leve variação (sem listras)
+export const softFabric = (col: string, seed = 3) =>
+	make('soft' + col + seed, 256, 256, (c, w, h) => {
+		const r = rng(seed);
+		c.fillStyle = col;
+		c.fillRect(0, 0, w, h);
+		blotches(c, w, h, r, 10, 0.05);
+		for (let i = 0; i < 2500; i++) {
+			c.fillStyle = `rgba(${r() < 0.5 ? '0,0,0' : '255,255,255'},${0.03 * r()})`;
+			c.fillRect(r() * w, r() * h, 1, 1);
+		}
+	});

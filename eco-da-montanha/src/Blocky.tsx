@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import React, {useMemo} from 'react';
 import {Expr, faceTex, T} from './tex';
+import {MaxBody} from './Max';
 
 export type Look = {
 	skin: string;
@@ -17,12 +18,13 @@ export type Look = {
 	hoodie?: boolean;
 	iris?: boolean;
 	cargo?: boolean;
+	custom?: 'max';
 	scale: number;
 };
 
 export const CAST: Record<string, Look> = {
 	// Narrador: MAX (14 anos) — moletom vermelho tricotado, camiseta branca, calça cargo grafite, tênis vermelho/branco, cabelo castanho volumoso.
-	max: {skin: '#f1c79c', shirt: () => T.knit('#c8282e', '#b21f25', 1), shirtCol: '#c8282e', pants: '#3a3d42', shoes: '#d8262c', hair: {col: '#3b2414', style: 'messy'}, hoodie: true, iris: true, cargo: true, scale: 1.08},
+	max: {skin: '#f1c79c', shirt: () => T.knit('#c8282e', '#b21f25', 1), shirtCol: '#c8282e', pants: '#3a3d42', shoes: '#d8262c', hair: {col: '#3b2414', style: 'messy'}, hoodie: true, iris: true, cargo: true, custom: 'max', scale: 0.92},
 	lia: {skin: '#f4cfa8', shirt: () => T.plaid('#e8566b', '#ffd166'), shirtCol: '#e8566b', pants: '#e8566b', shoes: '#ffd166', hair: {col: '#7a4423', style: 'pigtails'}, scale: 0.78},
 	velho: {skin: '#d9ab84', shirt: () => T.fabric('#3b3a36'), shirtCol: '#3b3a36', pants: '#2a2925', shoes: '#4a3524', hat: 'flatCap', hatCol: '#5b4a3a', hair: {col: '#c9c4bc', style: 'short'}, beard: true, scale: 1.38},
 	mae: {skin: '#efc39a', shirt: () => T.knit('#4f7a52', '#5c8a5f', 1), shirtCol: '#4f7a52', pants: '#3b3f4f', shoes: '#5a3b2a', hair: {col: '#6b3b1f', style: 'bun'}, scale: 1.34},
@@ -53,7 +55,7 @@ export const townie = (i: number, kid = false): Look => {
 	};
 };
 
-export type Pose = 'idle' | 'wave' | 'cup' | 'knock' | 'run' | 'walk' | 'sit' | 'sleep' | 'lean' | 'cheer' | 'point' | 'hug' | 'lifted' | 'arms' | 'hold' | 'cover' | 'reach' | 'five' | 'shrug' | 'torch';
+export type Pose = 'idle' | 'wave' | 'cup' | 'knock' | 'run' | 'walk' | 'sit' | 'sleep' | 'lean' | 'cheer' | 'point' | 'hug' | 'lifted' | 'arms' | 'hold' | 'cover' | 'reach' | 'five' | 'shrug' | 'torch' | 'apose';
 
 type Rot = [number, number, number];
 const P = (t: number, pose: Pose) => {
@@ -155,6 +157,12 @@ const P = (t: number, pose: Pose) => {
 			o.ra = [-0.4, 0, -0.9];
 			o.head = [0, 0, 0.12];
 			break;
+		case 'apose':
+			o.la = [0, 0, -0.45];
+			o.ra = [0, 0, 0.45];
+			o.head = [0, 0, 0];
+			o.y = 0;
+			break;
 		case 'torch':
 			o.ra = [-1.2, 0, 0.1];
 			break;
@@ -191,8 +199,34 @@ export const Blocky: React.FC<{
 	}, [look]);
 	const face = useMemo(() => faceTex(expr, !!look.beard, !!look.iris), [expr, look.beard, look.iris]);
 	const p = P(t, pose);
+	if (look.custom === 'max' && pose === 'sit') p.y = -0.6; // perna do Max é mais longa (quadril em 2,4)
 	const u = 0.25 * look.scale;
 	const lying = pose === 'sleep';
+	const handProp = (
+		<>
+						{prop === 'torch' && (
+							<group position={[0, -2.0, 0.5]} rotation={[1.57, 0, 0]}>
+								<mesh position={[0, 0.2, 0]}>
+									<cylinderGeometry args={[0.12, 0.15, 2.4, 6]} />
+									<meshStandardMaterial color="#5a3a1f" />
+								</mesh>
+								<mesh position={[0, 1.6 + Math.sin(t * 17) * 0.05, 0]} scale={[1, 1.2 + Math.sin(t * 23) * 0.15, 1]}>
+									<coneGeometry args={[0.35, 1.0, 6]} />
+									<meshBasicMaterial color="#ffb347" />
+								</mesh>
+								<sprite position={[0, 1.6, 0]} scale={[3.5, 3.5, 1]}>
+									<spriteMaterial map={T.glow('rgba(255,170,70,0.6)')} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+								</sprite>
+							</group>
+						)}
+						{prop === 'note' && (
+							<mesh position={[0, -2.0, 0.55]} rotation={[0.2, 0, 0]}>
+								<boxGeometry args={[1.2, 1.5, 0.05]} />
+								<meshStandardMaterial color="#f3ecd8" />
+							</mesh>
+						)}
+		</>
+	);
 	return (
 		<group position={pos} rotation={[rx, ry, 0]}>
 			{shadow && !lying && (
@@ -202,6 +236,10 @@ export const Blocky: React.FC<{
 				</mesh>
 			)}
 			<group scale={u} position={[0, p.y * u * 4, 0]} rotation={lying ? [-Math.PI / 2, 0, 0] : [0, 0, 0]}>
+				{look.custom === 'max' ? (
+					<MaxBody rig={p} expr={expr} propSlot={handProp} bunnySlot={prop === 'bunny' ? <Bunny pos={[0, 1.0, 0.95]} s={0.9} /> : null} />
+				) : (
+				<>
 				{/* pernas */}
 				<group position={[-0.5, 2, 0]} rotation={p.ll}>
 					<mesh position={[0, -0.85, 0]} material={m.pants}>
@@ -296,27 +334,7 @@ export const Blocky: React.FC<{
 						<mesh position={[0, -1.6, 0]} material={m.skin}>
 							<boxGeometry args={[0.94, 0.6, 0.94]} />
 						</mesh>
-						{prop === 'torch' && (
-							<group position={[0, -2.0, 0.5]} rotation={[1.57, 0, 0]}>
-								<mesh position={[0, 0.2, 0]}>
-									<cylinderGeometry args={[0.12, 0.15, 2.4, 6]} />
-									<meshStandardMaterial color="#5a3a1f" />
-								</mesh>
-								<mesh position={[0, 1.6 + Math.sin(t * 17) * 0.05, 0]} scale={[1, 1.2 + Math.sin(t * 23) * 0.15, 1]}>
-									<coneGeometry args={[0.35, 1.0, 6]} />
-									<meshBasicMaterial color="#ffb347" />
-								</mesh>
-								<sprite position={[0, 1.6, 0]} scale={[3.5, 3.5, 1]}>
-									<spriteMaterial map={T.glow('rgba(255,170,70,0.6)')} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
-								</sprite>
-							</group>
-						)}
-						{prop === 'note' && (
-							<mesh position={[0, -2.0, 0.55]} rotation={[0.2, 0, 0]}>
-								<boxGeometry args={[1.2, 1.5, 0.05]} />
-								<meshStandardMaterial color="#f3ecd8" />
-							</mesh>
-						)}
+						{handProp}
 					</group>
 					{prop === 'bunny' && <Bunny pos={[0, 1.0, 0.95]} s={0.9} />}
 					{/* cabeça */}
@@ -367,6 +385,8 @@ export const Blocky: React.FC<{
 						)}
 					</group>
 				</group>
+				</>
+				)}
 			</group>
 		</group>
 	);
